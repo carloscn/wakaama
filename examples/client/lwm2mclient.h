@@ -108,4 +108,11 @@ char * get_server_uri(lwm2m_object_t * objectP, uint16_t secObjInstID);
 void display_security_object(lwm2m_object_t * objectP);
 void copy_security_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSrc);
 
+/*
+ * object_temprature.c
+ */
+lwm2m_object_t * get_object_temperature(void);
+void free_object_temperature(lwm2m_object_t * object);
+void display_temperature_object(lwm2m_object_t * objectP);
+
 #endif /* LWM2MCLIENT_H_ */

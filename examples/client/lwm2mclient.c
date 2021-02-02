@@ -87,7 +87,7 @@
 int g_reboot = 0;
 static int g_quit = 0;
 
-#define OBJ_COUNT 9
+#define OBJ_COUNT 10
 lwm2m_object_t * objArray[OBJ_COUNT];
 
 // only backup security and server objects
@@ -670,6 +670,9 @@ static void prv_display_objects(char * buffer,
             case LWM2M_LOCATION_OBJECT_ID:
                 display_location_object(object);
                 break;
+            case LWM2M_TEMPERATURE_OBJECT_ID:
+                display_temperature_object(object);
+                break;
             case LWM2M_CONN_STATS_OBJECT_ID:
                 break;
             case TEST_OBJECT_ID:
@@ -1101,28 +1104,36 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int instId = 0;
-    objArray[8] = acc_ctrl_create_object();
+    objArray[8] = get_object_temperature();
     if (NULL == objArray[8])
+    {
+        fprintf(stderr, "Failed to create temperature statistics object\r\n");
+        return -1;
+    }
+
+    int instId = 0;
+    objArray[9] = acc_ctrl_create_object();
+    if (NULL == objArray[9])
     {
         fprintf(stderr, "Failed to create Access Control object\r\n");
         return -1;
     }
-    else if (acc_ctrl_obj_add_inst(objArray[8], instId, 3, 0, serverId)==false)
+    else if (acc_ctrl_obj_add_inst(objArray[9], instId, 3, 0, serverId)==false)
     {
         fprintf(stderr, "Failed to create Access Control object instance\r\n");
         return -1;
     }
-    else if (acc_ctrl_oi_add_ac_val(objArray[8], instId, 0, 0b000000000001111)==false)
+    else if (acc_ctrl_oi_add_ac_val(objArray[9], instId, 0, 0b000000000001111)==false)
     {
         fprintf(stderr, "Failed to create Access Control ACL default resource\r\n");
         return -1;
     }
-    else if (acc_ctrl_oi_add_ac_val(objArray[8], instId, 999, 0b000000000000001)==false)
+    else if (acc_ctrl_oi_add_ac_val(objArray[9], instId, 999, 0b000000000000001)==false)
     {
         fprintf(stderr, "Failed to create Access Control ACL resource for serverId: 999\r\n");
         return -1;
     }
+
     /*
      * The liblwm2m library is now initialized with the functions that will be in
      * charge of communication
@@ -1405,7 +1416,8 @@ int main(int argc, char *argv[])
     free_test_object(objArray[5]);
     free_object_conn_m(objArray[6]);
     free_object_conn_s(objArray[7]);
-    acl_ctrl_free_object(objArray[8]);
+    free_object_temperature(objArray[8]);
+    acl_ctrl_free_object(objArray[9]);
 
 #ifdef MEMORY_TRACE
     if (g_quit == 1)

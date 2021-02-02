@@ -10,7 +10,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../../data/data.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../shared/shared.cmake)
 
 add_definitions(-DLWM2M_CLIENT_MODE -DLWM2M_BOOTSTRAP)
-if(LWM2M_VERSION VERSION_GREATER "1.0") 
+if(LWM2M_VERSION VERSION_GREATER "1.0")
     add_definitions(-DLWM2M_SUPPORT_SENML_JSON)
 else()
     add_definitions(-DLWM2M_SUPPORT_JSON)
@@ -37,6 +37,7 @@ SET(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/object_connectivity_stat.c
     ${CMAKE_CURRENT_LIST_DIR}/object_access_control.c
     ${CMAKE_CURRENT_LIST_DIR}/object_test.c
+    ${CMAKE_CURRENT_LIST_DIR}/object_temperature.c
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${WAKAAMA_SOURCES} ${COAP_SOURCES} ${DATA_SOURCES} ${SHARED_SOURCES})
