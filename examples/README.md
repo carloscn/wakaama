@@ -29,4 +29,13 @@ write #client_code + *#source_url data*
 
 etc
 
+### Using the Leshan server demo
+GUI : https://leshan.eclipseprojects.io/#/clients
+CMD : ./lwm2mclient -4 -n carlostest -h leshan.eclipseprojects.io -p 5683
+
+
+```cpp
+./configure --with-ssl=openss --with-openssl=/usr/local/openssl/ --without-zlib --with-libssl-prefix=/usr/local/openssl/
+```
+
 

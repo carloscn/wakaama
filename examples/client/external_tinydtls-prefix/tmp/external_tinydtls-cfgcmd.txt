@@ -1,0 +1,1 @@
+cmd='/home/carlos/work/wakaama/examples/shared/tinydtls/configure;--host=cc'

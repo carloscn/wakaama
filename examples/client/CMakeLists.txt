@@ -8,6 +8,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../../core/wakaama.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../../coap/coap.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../../data/data.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../shared/shared.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/arm.cmake)
 
 add_definitions(-DLWM2M_CLIENT_MODE -DLWM2M_BOOTSTRAP)
 if(LWM2M_VERSION VERSION_GREATER "1.0")

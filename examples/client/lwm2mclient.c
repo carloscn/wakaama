@@ -198,6 +198,22 @@ void handle_value_changed(lwm2m_context_t * lwm2mH,
     }
 }
 
+int lwm2m_trigger_res_note(const char *urlstr, lwm2m_context_t *contextp)
+{
+    lwm2m_uri_t uri;
+    if (urlstr == NULL) {
+        printf("url is null\n");
+        return -1;
+    }
+    if (contextp == NULL) {
+        printf("contextp is null\n");
+        return -1;
+    }
+    memset(&uri, 0, sizeof(lwm2m_uri_t));
+    lwm2m_stringToUri(urlstr, 6, &uri);
+    lwm2m_resource_value_changed(contextp, &uri);
+}
+
 #ifdef WITH_TINYDTLS
 void * lwm2m_connect_server(uint16_t secObjInstID,
                             void * userData)

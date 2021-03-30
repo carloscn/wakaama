@@ -20,7 +20,7 @@
 /*! \file
   LWM2M object "temperature" implementation
 
-  \author Carlos Wei 
+  \author Carlos Wei
 */
 
 /*
@@ -32,11 +32,10 @@
  *  Resources:
  *  Name        | ID  | Oper.|Instances|Mand.|  Type   | Range | Units | Description                                                                      |
  * -------------+-----+------+---------+-----+---------+-------+-------+----------------------------------------------------------------------------------+
- *  Current     |  0  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of latitude  e.g. -  45.5723  [Worlds Geodetic System 1984].|
- *  Max         |  1  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of longitude e.g. - 153.21760 [Worlds Geodetic System 1984].|
- *  Min         |  2  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of altitude in meters above sea level.                      |                                                |
+ *  Current     |  0  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of current  e.g. -  45.5723  [Worlds Geodetic System 1984]. |
+ *  Max         |  1  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of Max e.g. - 153.21760 [Worlds Geodetic System 1984].      |
+ *  Min         |  2  |  R   | Single  | Yes | Float   |       |  du   | The decimal notation of Min                                                      |
  *  Timestamp   |  5  |  R   | Single  | Yes | Time    |       |   s   | The timestamp when the location measurement was performed.                       |
- *              |     |      |         |     |         |       |       | for direction: the scalar component of velocity.                                 |
  */
 
 #include "liblwm2m.h"
@@ -74,7 +73,7 @@ static uint8_t prv_res2tlv(lwm2m_data_t* dataP,
                            temperature_data_t* tempDataP)
 {
     //-------------------------------------------------------------------- JH --
-    uint8_t ret = COAP_205_CONTENT;  
+    uint8_t ret = COAP_205_CONTENT;
     switch (dataP->id)     // temperature resourceId
     {
     case RES_M_CURRENT:
@@ -94,7 +93,7 @@ static uint8_t prv_res2tlv(lwm2m_data_t* dataP,
         ret = COAP_404_NOT_FOUND;
         break;
     }
-  
+
     return ret;
 }
 
@@ -113,7 +112,7 @@ static uint8_t prv_temperature_read(uint16_t objInstId,
                                  int*  numDataP,
                                  lwm2m_data_t** tlvArrayP,
                                  lwm2m_object_t*  objectP)
-{   
+{
     //-------------------------------------------------------------------- JH --
     int     i;
     uint8_t result = COAP_500_INTERNAL_SERVER_ERROR;
@@ -130,18 +129,18 @@ static uint8_t prv_temperature_read(uint16_t objInstId,
                 RES_M_MIN,
                 RES_M_TIMESTAMP
         }; // readable resources!
-        
+
         *numDataP  = sizeof(readResIds)/sizeof(uint16_t);
         *tlvArrayP = lwm2m_data_new(*numDataP);
         if (*tlvArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
-        
+
         // init readable resource id's
         for (i = 0 ; i < *numDataP ; i++)
         {
             (*tlvArrayP)[i].id = readResIds[i];
         }
     }
-    
+
     for (i = 0 ; i < *numDataP ; i++)
     {
         if ((*tlvArrayP)[i].type == LWM2M_TYPE_MULTIPLE_RESOURCE)
@@ -154,7 +153,7 @@ static uint8_t prv_temperature_read(uint16_t objInstId,
         }
         if (result!=COAP_205_CONTENT) break;
     }
-    
+
     return result;
 }
 
@@ -236,6 +235,38 @@ static uint8_t prv_device_execute(uint16_t instanceId,
         return COAP_405_METHOD_NOT_ALLOWED;
     }
 }
+#if 0
+static void prv_temperature_change(char * buffer,
+                                   void * user_data)
+{
+    lwm2m_context_t * lwm2mH = (lwm2m_context_t *) user_data;
+    lwm2m_uri_t uri;
+    char * end = NULL;
+    int result;
+
+    end = get_end_of_arg(buffer);
+    if (end[0] == 0) goto syntax_error;
+
+    result = lwm2m_string_to_uri(buffer, end - buffer, &uri);
+    if (result == 0) goto syntax_error;
+
+    buffer = get_next_arg(end, &end);
+
+    if (buffer[0] == 0)
+    {
+        printf("report change!\n");
+        lwm2m_resource_value_changed(lwm2mH, &uri);
+    }
+    else
+    {
+        handle_value_changed(lwm2mH, &uri, buffer, end - buffer);
+    }
+    return;
+
+syntax_error:
+    printf("Syntax error !\n");
+}
+#endif
 static uint8_t prv_temperature_write(uint16_t instanceId,
                                     int numData,
                                     lwm2m_data_t * dataArray,
@@ -245,6 +276,7 @@ static uint8_t prv_temperature_write(uint16_t instanceId,
     int i;
     uint8_t result;
     temperature_data_t *targetP = NULL;
+    lwm2m_context_t * lwm2mH = (lwm2m_context_t*)(objectP->userData);
 
     printf("prv_temperature_write function\n");
     // All write types are treated the same here
@@ -278,7 +310,7 @@ static uint8_t prv_temperature_write(uint16_t instanceId,
                 result = COAP_400_BAD_REQUEST;
                 return result;
             }
-            
+
             if (1 == lwm2m_data_decode_float( dataArray + i, &(targetP->current)))
             {
                 ((temperature_data_t*)(objectP->userData))->current = targetP->current;
@@ -302,7 +334,7 @@ static uint8_t prv_temperature_write(uint16_t instanceId,
             {
                 result = COAP_400_BAD_REQUEST;
             }
-            break;     
+            break;
 
         case RES_M_MIN:
             printf("asBuffer %s\n", (dataArray + i)->value.asBuffer.buffer);
@@ -316,7 +348,7 @@ static uint8_t prv_temperature_write(uint16_t instanceId,
             {
                 result = COAP_400_BAD_REQUEST;
             }
-            break;    
+            break;
         default:
             result = COAP_405_METHOD_NOT_ALLOWED;
         }
@@ -356,7 +388,7 @@ lwm2m_object_t * get_object_temperature(void)
         // It assigns its unique ID
         // The 25 is the standard ID for the optional object "temp".
         tempObj->objID = LWM2M_TEMPERATURE_OBJECT_ID;
-        
+
         // and its unique instance
         tempObj->instanceList = (lwm2m_list_t *)lwm2m_malloc(sizeof(lwm2m_list_t));
         if (NULL != tempObj->instanceList)
@@ -393,7 +425,7 @@ lwm2m_object_t * get_object_temperature(void)
             tempObj = NULL;
         }
     }
-    
+
     return tempObj;
 }
 
